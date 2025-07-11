@@ -88,11 +88,12 @@ watch(
   },
 );
 
-const onExpanded = (value: MenuValue[]) => {
-  const currentOperationMenu = difference(expanded.value, value);
-  const allExpanded = union(value, expanded.value);
-  remove(allExpanded, (item) => currentOperationMenu.includes(item));
-  expanded.value = allExpanded;
+const onExpanded: (val: MenuValue[]) => void = (value) => {
+  const currentOperationMenu = difference(expanded.value, value); // 折叠的菜单项
+  const allExpanded = union(value, expanded.value); // 合并所有展开菜单项
+
+  // 过滤掉折叠的菜单项
+  expanded.value = allExpanded.filter((item) => !currentOperationMenu.includes(item));
 };
 
 const sideMode = computed(() => {
