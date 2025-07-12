@@ -6,24 +6,30 @@
     :pagination="pagination"
     @page-change="rehandlePageChange"
     @change="rehandleChange"
-  ></t-table>
+  >
+    <template #operation="{ row }">
+      <t-link theme="primary" @click="handleRemove(row)"> 删除 </t-link>
+    </template>
+  </t-table>
 </template>
-<script setup lang="ts">
+<script setup lang="tsx">
 import type { PageInfo, PaginationProps, TableProps, TableRowData } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
-import { getHistoryList } from '@/api/goodsEstimator';
+import { getHistoryList, removeHistory } from '@/api/goodsEstimator';
 import type { PDDGoodsEstimatorQuery } from '@/api/model/goodsEstimatorModel';
 
 const columns = ref<TableProps['columns']>([
   {
     colKey: 'goodsName',
     title: '商品名称',
+    fixed: 'left',
   },
   {
     colKey: 'skuName',
     title: 'sku名称',
+    fixed: 'left',
   },
   {
     colKey: 'purchaseCost',
@@ -96,6 +102,12 @@ const columns = ref<TableProps['columns']>([
     title: '活动折扣',
     align: 'center',
   },
+  {
+    colKey: 'operation',
+    title: '操作',
+    width: 100,
+    fixed: 'right',
+  },
 ]);
 
 onMounted(() => {
@@ -130,6 +142,12 @@ const rehandlePageChange = (pageInfo: PageInfo, newDataSource: TableRowData[]) =
 };
 const rehandleChange = (changeParams: unknown, triggerAndData: unknown) => {
   fetchData();
+};
+
+const handleRemove = async (context: TableRowData) => {
+  await removeHistory(context.id);
+  fetchData();
+  MessagePlugin.success('已删除');
 };
 
 // 暴露方法给父组件

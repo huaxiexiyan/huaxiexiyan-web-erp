@@ -32,6 +32,7 @@
             <t-form-item>
               <t-space size="small">
                 <t-button theme="primary" type="submit">计算</t-button>
+                <t-button theme="success" variant="base" @click="handleSaveHistory">保存计算结果</t-button>
                 <t-button theme="default" variant="base" type="reset">重置</t-button>
               </t-space>
             </t-form-item>
@@ -48,7 +49,7 @@ import type { FormProps, InputProps } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { computed, reactive, ref, toRaw } from 'vue';
 
-import { calculate } from '@/api/goodsEstimator';
+import { calculate, saveHistory } from '@/api/goodsEstimator';
 import type { PDDGoodsEstimator } from '@/api/model/goodsEstimatorModel';
 
 import PddTable from './components/pdd-table.vue';
@@ -167,9 +168,17 @@ const onSubmit: FormProps['onSubmit'] = async ({ validateResult, firstError }) =
     console.log('Validate Errors: ', firstError, validateResult);
     MessagePlugin.warning(firstError);
   }
+};
+
+const handleSaveHistory = async () => {
+  // 转换为非响应式对象后传参
+  const rawFormData = toRaw(formData) as PDDGoodsEstimator;
+  await saveHistory(rawFormData); // 异步请求
+  MessagePlugin.success('结果已保存');
   childRef.value?.fetchData();
   console.log('执行了');
 };
+
 // 禁用 Input 组件，按下 Enter 键时，触发 submit 事件
 const onEnter: InputProps['onEnter'] = (_, { e }) => {
   e.preventDefault();
